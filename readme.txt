@@ -1,6 +1,1 @@
-import re
-
-def change_timestamp(text: str) -> str:
-    pattern = r'time\[stamp\]\[(\d+)\] with\[out\] time zone([,\n ])'
-    replacement = r'datetime\2'
-    return re.sub(pattern, replacement, text)
+SELECT (CURRENT_DATE - (EXTRACT(DOW FROM CURRENT_DATE)::int + 6) % 7 - 2)::date AS last_weekday;

@@ -1,1 +1,1 @@
-SELECT (CURRENT_DATE - (CASE WHEN EXTRACT(DOW FROM CURRENT_DATE) = 0 THEN 2 ELSE 1 END))::date AS last_weekday;
+冬に雪が降ったらかまくら作って

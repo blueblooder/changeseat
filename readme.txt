@@ -1,11 +1,10 @@
-In MS SQL Server 2019, you can use the `DATEFROMPARTS()` function and the `EOMONTH()` function to achieve the same result as the PostgreSQL syntax you provided:
+In MS SQL Server 2019, you can use the `CHARINDEX()` and `SUBSTRING()` functions along with a `CASE` statement to achieve the same result as the PostgreSQL syntax you provided:
 
 ```
-SELECT DATEFROMPARTS(YEAR(EOMONTH(GETDATE(), -2)), MONTH(EOMONTH(GETDATE(), -2)), 1) AS month_start
+SELECT CASE WHEN CHARINDEX('a', col1, CHARINDEX('a', col1, CHARINDEX('a', col1, CHARINDEX('a', col1, CHARINDEX('a', col1) + 1) + 1) + 1) + 1) = 0
+            THEN NULL
+            ELSE SUBSTRING(col1, CHARINDEX('a', col1, CHARINDEX('a', col1, CHARINDEX('a', col1, CHARINDEX('a', col1, CHARINDEX('a', col1) + 1) + 1) + 1) + 1) + 1, LEN(col1))
+       END AS col1_part
 ```
 
-This first uses the `EOMONTH()` function to retrieve the last day of the previous month, and then subtracts one month from that date. The `YEAR()` and `MONTH()` functions are used to retrieve the year and month of the resulting date, and the `DATEFROMPARTS()` function is used to construct a new date from the year, month, and day 1.
-
-Note that the `EOMONTH()` function is used with a negative offset of 2, which means that it returns the last day of the month that is two months before the current month. This corresponds to the last day of the previous month.
-
-I hope this helps!
+This first uses nested `CHARINDEX()` functions to locate the fifth occurrence of the character 'a' in the `col1` column. The `SUBSTRING()` function is then used to extract the substring starting from the character after the fifth occurrence of 'a'. The `CASE`

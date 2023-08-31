@@ -1,23 +1,22 @@
-Certainly! You can use the `datetime` module in Python to achieve this. Here's an example code that waits until 11:50 AM and then proceeds with the remaining code:
+Apologies for the misunderstanding. To exclude individual lines within the `logfield` that contain the word "Carte" in MSSQL 2019, you can use the `CROSS APPLY` operator with a string splitting function and the `NOT LIKE` operator. Here's an example SQL query:
 
-```python
-import datetime
-import time
-
-target_time = datetime.time(11, 50)  # Set the target time to 11:50 AM
-
-while True:
-    current_time = datetime.datetime.now().time()  # Get the current time
-    if current_time >= target_time:
-        break  # Exit the loop if the current time is equal to or greater than the target time
-    else:
-        time.sleep(1)  # Wait for 1 second before checking the time again
-
-# Proceed with the remaining code here
-print("It's 11:50 AM. Proceeding with the remaining code...")
-# Rest of your code goes here
+```sql
+SELECT logfield
+FROM log
+CROSS APPLY STRING_SPLIT(logfield, CHAR(10)) AS lines
+WHERE lines.value NOT LIKE '%Carte%'
+GROUP BY logfield
+HAVING COUNT(*) = (SELECT COUNT(*) FROM STRING_SPLIT(logfield, CHAR(10)))
 ```
 
-In this code, we set the `target_time` variable to 11:50 AM using the `datetime.time` function. Then, we enter a loop where we continuously check the current time using `datetime.datetime.now().time()`. If the current time is equal to or greater than the target time, we break out of the loop and proceed with the remaining code. Otherwise, we use `time.sleep(1)` to pause the execution for 1 second before checking the time again.
+In this query:
 
-Note that this code will continuously run until the target time is reached. If you want to run this code as part of a script, make sure to run it in a separate thread or process to avoid blocking the main execution.
+1. The `CROSS APPLY` operator is used with the `STRING_SPLIT` function to split the `logfield` into individual lines. The `CHAR(10)` represents the line break character.
+
+2. The `WHERE` clause filters out the lines that contain the word "Carte" using the `NOT LIKE` operator.
+
+3. The `GROUP BY` clause groups the results by the `logfield`.
+
+4. The `HAVING` clause ensures that only the `logfield` values containing all the original lines are selected. It does this by comparing the count of lines after filtering with the count of lines in the original `logfield`.
+
+By using this approach, only the `logfield` values that include all lines without the word "Carte" will be returned.

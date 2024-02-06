@@ -93,3 +93,70 @@ In this updated script, for each image, we extract the top line of the current i
 
 After running the script, you will have a merged image named `"merged_image.png"` that contains the entire height of the website.
 
+before overlapping the pieces, create a blank picture that is the width is equal to that of width, and the height is equal to the heigth of the final image + the overlapping height of the current image. Then paste the current image in the top left corner, and then paste the final image from the overlapping line.
+
+from PIL import Image
+
+# List of image paths
+image_paths = [
+    "piece1.png",
+    "piece2.png",
+    "piece3.png",
+    # Add more image paths as needed
+]
+
+# Load the first image
+final_image = Image.open(image_paths[0])
+width, height = final_image.size
+
+# Create a blank canvas for the final merged image
+merged_width = width
+merged_height = height
+for i in range(1, len(image_paths)):
+    current_image = Image.open(image_paths[i])
+    merged_height += current_image.size[1] - overlap_height  # Adjust the overlap height as needed
+
+merged_image = Image.new("RGB", (merged_width, merged_height))
+
+# Paste the first image onto the merged image
+merged_image.paste(final_image, (0, 0))
+
+# Iterate over the remaining images
+y_offset = height
+for i in range(1, len(image_paths)):
+    # Open the current image
+    current_image = Image.open(image_paths[i])
+    current_width, current_height = current_image.size
+
+    # Get the top line of the current image
+    top_line = current_image.crop((0, 0, current_width, 1))
+
+    # Compare each line of the previous image with the top line of the current image
+    for y in range(height - 1, -1, -1):
+        line = final_image.crop((0, y, width, y + 1))
+        if line == top_line:
+            # Create a blank canvas for the current piece with overlapping area
+            canvas = Image.new("RGB", (merged_width, current_height + y - 1))
+
+            # Paste the current image onto the canvas
+            canvas.paste(current_image, (0, 0))
+
+            # Paste the final image from the overlapping line onto the canvas
+            canvas.paste(final_image.crop((0, y, width, height)), (0, current_height - y + 1))
+
+            # Paste the canvas onto the merged image
+            merged_image.paste(canvas, (0, y_offset))
+
+            # Update the y offset for the next image
+            y_offset += current_height - y + 1
+
+            # Update the final image to be the current image
+            final_image = current_image
+
+            break
+
+# Save the final merged image
+merged_image.save("merged_image.png")
+
+
+

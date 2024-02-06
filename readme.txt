@@ -1,22 +1,48 @@
-Apologies for the misunderstanding. To exclude individual lines within the `logfield` that contain the word "Carte" in MSSQL 2019, you can use the `CROSS APPLY` operator with a string splitting function and the `NOT LIKE` operator. Here's an example SQL query:
+I want to take a screenshot of a very high website. Previously I screencapture the website from top to down piece by piece. In each piece, the top part is identical to the bottom part of previous piece, and the bottom part is identical to the top part of the next piece so that they can overlap each other. Write a python script to overlap the same parts of the pieces and concatenate all piece so that I can have one picture that is the very high website.
 
-```sql
-SELECT logfield
-FROM log
-CROSS APPLY STRING_SPLIT(logfield, CHAR(10)) AS lines
-WHERE lines.value NOT LIKE '%Carte%'
-GROUP BY logfield
-HAVING COUNT(*) = (SELECT COUNT(*) FROM STRING_SPLIT(logfield, CHAR(10)))
+Modify the script so that it detects the pixels of the pieces and overlaps the same parts.
+
+Do not need to use the advanced algothrim.Just get all pixels of the bottom line of the previously image, and then compare each line of the following image from top to bottom. When they are identical, overlap the pieces.
+
+Apologies for the misunderstanding. If you want to compare each line of the following image with the bottom line of the previous image, you can use a simpler approach. Here's an updated version of the script that compares pixel values:
+
+```python
+from PIL import Image
+
+# List of image paths
+image_paths = [
+    "piece1.png",
+    "piece2.png",
+    "piece3.png",
+    # Add more image paths as needed
+]
+
+# Load the first image
+final_image = Image.open(image_paths[0])
+width, height = final_image.size
+
+# Iterate over the remaining images
+for i in range(1, len(image_paths)):
+    # Open the current image
+    current_image = Image.open(image_paths[i])
+
+    # Get the bottom line of the previous image
+    bottom_line = final_image.crop((0, height - 1, width, height))
+
+    # Compare each line of the current image with the bottom line of the previous image
+    for y in range(height):
+        line = current_image.crop((0, y, width, y + 1))
+        if line == bottom_line:
+            # Overlap the pieces
+            final_image.paste(current_image, (0, height - y))
+            break
+
+# Save the final image
+final_image.save("merged_image.png")
 ```
 
-In this query:
+Make sure to replace `"piece1.png"`, `"piece2.png"`, `"piece3.png"`, etc., with the actual paths of your image pieces.
 
-1. The `CROSS APPLY` operator is used with the `STRING_SPLIT` function to split the `logfield` into individual lines. The `CHAR(10)` represents the line break character.
+In this updated script, for each image, we extract the bottom line of the previous image using the `crop` function. We then iterate over each line of the current image and compare it with the bottom line of the previous image using the equality operator (`==`). If we find a matching line, we overlap the pieces by pasting the current image onto the final image using the `paste` function.
 
-2. The `WHERE` clause filters out the lines that contain the word "Carte" using the `NOT LIKE` operator.
-
-3. The `GROUP BY` clause groups the results by the `logfield`.
-
-4. The `HAVING` clause ensures that only the `logfield` values containing all the original lines are selected. It does this by comparing the count of lines after filtering with the count of lines in the original `logfield`.
-
-By using this approach, only the `logfield` values that include all lines without the word "Carte" will be returned.
+After running the script, you will have a merged image named `"merged_image.png"` that contains the entire height of the website.

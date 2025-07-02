@@ -87,7 +87,7 @@ def fill_and_submit_form(driver, subject, content, month, day, hour, minute):
             EC.presence_of_element_located((By.CSS_SELECTOR, "#artEditor .fr-element.fr-view"))
         )
 
-        escaped_content = content.replace('&', '&').replace('<', '<').replace('>', '>')
+        escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
         html_content = escaped_content.replace('\n', '<br>')
         
         driver.execute_script("arguments[0].innerHTML = arguments[1];", content_editor_div, html_content)
